@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <title>Chatsovellus</title>
+</head>
+<body>
+    <h1>{{ category.name }}</h1>
+    <h2>{{ thread.name }}</h2>
+    <hr>
+    <a href="/">Etusivulle</a>
+    <hr>
+    <p>Viestien määrä: {{ count_messages }}</p>
+    <ul>
+        {% for message in messages %}
+        <li>
+            <p>{{ message.username }}: {{ message.content }} <small>{{ message.sent_at }}</small></p>
+        </li>
+        {% endfor %}
+    </ul>
+    <hr>
+    {% if session.user_id %}
+        <form action="/{{ category.name }}/{{ thread.thread_id }}/send" method="POST">
+            <input type="hidden" name="category_id" value="{{ category.category_id }}">
+            <input type="hidden" name="category_name" value="{{ category.name }}">
+            <input type="hidden" name="thread_id" value="{{ thread.thread_id }}">
+            Viesti: <br>
+            <textarea name="content" rows="3" cols="40"></textarea>
+            <br>
+            <input type="submit" value="Lähetä">
+        </form>
+        <hr>
+        Olet kirjautunut sisään.
+        <a href="/logout">Kirjaudu ulos</a>
+    {% else %}
+        Sinun tulee olla kirjautunut sisään osallistuaksesi keskusteluun. | <a href="/login">Kirjaudu sisään</a>
+    {% endif %}
+</body>
+</html>
