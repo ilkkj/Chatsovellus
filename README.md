@@ -16,7 +16,7 @@ Sovelluksessa näkyy keskustelualueita, joista jokaisella on tietty aihe. Alueil
 
 Sovelluksesta puuttuvat vielä seuraavat toiminnot:
 - <s>Viimeksi lähetetyn viestin ajankohta</s>
-- <s>Käyttäjä voi muokata luomansa ketjun otsikkoa sekä lähettämänsä viestin sisältöä. Käyttäjä voi myös poistaa ketjun tai viestin.<s>
+- <s>Käyttäjä voi muokata luomansa ketjun otsikkoa sekä lähettämänsä viestin sisältöä. Käyttäjä voi myös poistaa ketjun tai viestin.</s>
 - Käyttäjä voi etsiä kaikki viestit, joiden osana on annettu sana.
 - <s>Ylläpitäjä voi lisätä ja poistaa keskustelualueita.</s>
 - <s>Ylläpitäjä voi luoda salaisen alueen</s> ja määrittää, keillä käyttäjillä on pääsy alueelle. (Toteutukselle luotu pohja tietokantaan)
