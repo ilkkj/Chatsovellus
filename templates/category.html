@@ -13,13 +13,41 @@
     <ul>
         {% for thread in threads %}
         <li>
-            <a href="/{{ category.name }}/{{ thread.thread_id }}">{{ thread.name }}</a>
-            <p>Viestien määrä:</p>
+            <a href="/{{ category.name }}/{{ thread.thread_id }}">{{ thread.thread_name }}</a>
+            {% if session.user_id == thread.user_id %}
+                <form action="/{{ category.name }}/delete_thread" method="POST">
+                    <input type="hidden" name="thread_id" value="{{ thread.thread_id }}">
+                    <input type="submit" value="Poista keskusteluketju"/>
+                </form>
+                <form action="/{{ category.name }}/edit_thread" method="POST">
+                    <input type="hidden" name="thread_id" value="{{ thread.thread_id }}">
+                    <input type="hidden" name="category_name" value="{{ category.name }}">
+                    Muokkaa otsikkoa: <input type="text" name="thread_name"> 
+                    <br>
+                    <input type="submit" value="Lähetä">
+                </form>
+            {% endif %}
+            <p>Viestien määrä: {{ thread.message_count  }}</p>
+            <p>Viimeisin viesti: {{  thread.last_message_time }}</p>
         </li>
         {% endfor %}
     </ul>
     <hr>
     {% if session.user_id %}
+        Luo uusi keskusteluketju:
+        <br>
+        <form action="/{{ category.name }}/new_thread" method="POST">
+            <input type="hidden" name="category_id" value="{{ category.category_id }}">
+            <input type="hidden" name="category_name" value="{{ category.name }}">
+            Otsikko: <input type="text" name="thread_name"> 
+            <br>
+            Viesti: 
+            <br>
+            <textarea name="content" rows="3" cols="40"></textarea>
+            <br>
+            <input type="submit" value="Lähetä">
+        </form>
+    <hr>
     Olet kirjautunut sisään.
     <a href="/logout">Kirjaudu ulos</a>
     {% else %}

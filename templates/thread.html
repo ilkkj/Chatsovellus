@@ -9,18 +9,33 @@
     <h2>{{ thread.name }}</h2>
     <hr>
     <a href="/">Etusivulle</a>
+    <a href="/{{ category.name }}">Takaisin</a>
     <hr>
     <p>Viestien määrä: {{ count_messages }}</p>
     <ul>
         {% for message in messages %}
         <li>
             <p>{{ message.username }}: {{ message.content }} <small>{{ message.sent_at }}</small></p>
-        </li>
+            {% if session.user_id == message.user_id %}
+                <form action="/{{ category.name }}/{{ thread.thread_id }}/delete_message" method="POST">
+                    <input type="hidden" name="message_id" value="{{ message.message_id }}">
+                    <input type="submit" value="Poista viesti" />
+                </form>
+                <form action="/{{ category.name }}/{{ thread.thread_id }}/edit_message" method="POST">
+                    <input type="hidden" name="thread_id" value="{{ thread.thread_id }}">
+                    <input type="hidden" name="message_id" value="{{ message.message_id }}">
+                    Muokkaa viestiä: <br>
+                    <textarea name="content" rows="3" cols="40"></textarea>
+                    <br>
+                    <input type="submit" value="Lähetä">
+                </form>
+            {% endif %}
+            </li>
         {% endfor %}
     </ul>
     <hr>
     {% if session.user_id %}
-        <form action="/{{ category.name }}/{{ thread.thread_id }}/send" method="POST">
+        <form action="/{{ category.name }}/{{ thread.thread_id }}/send_message" method="POST">
             <input type="hidden" name="category_id" value="{{ category.category_id }}">
             <input type="hidden" name="category_name" value="{{ category.name }}">
             <input type="hidden" name="thread_id" value="{{ thread.thread_id }}">

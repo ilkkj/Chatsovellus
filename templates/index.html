@@ -7,15 +7,35 @@
 <body>
     <h1>Keskustelualueet</h1>
     <hr>
-        Keskustelualueiden määrä: {{ count_categories }} Viestien määrä: {{ count_messages }}
+        Keskustelualueiden määrä: {{ count_categories }}
     <hr>    
         <ul>
             {% for category in categories %}
             <li>
-                <a href="/{{ category.name }}">{{ category.name }}</a>
-                <p>Viestien määrä:</p>
+                <a href="/{{ category.category_name }}">{{ category.category_name }}</a>
+                {% if admin %}
+                <form action="/delete_category" method="POST">
+                    <input type="hidden" name="category_id" value="{{ category.category_id }}">
+                    <input type="submit" value="Poista keskustelualue"/>
+                </form>
+                {% endif %}
+                <p>Viestiketjujen määrä: {{ category.thread_count }}</p>
+                <p>Viestien määrä: {{ category.message_count }}</p>
+                <p>Viimeisin viesti: {{  category.last_message_time }}</p>
             </li>
             {% endfor %}
+            <br>
+            {% if admin %}
+            Luo uusi keskusteluketju:
+            <br>
+            <form action="/new_category" method="POST">
+                <input type="text" name="category_name"> 
+                <input type="radio" name="is_secret" value="0" checked> Avoin
+                <input type="radio" name="is_secret" value="1"> Salainen
+                <br>
+                <input type="submit" value="Luo uusi keskustelualue">
+            </form>
+            {% endif %}
         </ul>
     <hr>
     {% if session.user_id %}
