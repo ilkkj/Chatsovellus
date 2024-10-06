@@ -1,6 +1,7 @@
 INSERT INTO categories (name) VALUES ('Teknologia');
 INSERT INTO categories (name) VALUES ('Urheilu');
 INSERT INTO categories (name) VALUES ('Matkailu');
+INSERT INTO categories (name, is_secret) VALUES ('Salainen', TRUE);
 
 INSERT INTO threads (user_id, category_id, name) VALUES (1, 1, 'Uudet älypuhelimet');
 INSERT INTO threads (user_id, category_id, name) VALUES (1, 1, 'Tekoälyn tulevaisuus');
