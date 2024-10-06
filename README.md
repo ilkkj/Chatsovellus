@@ -14,21 +14,15 @@ Sovelluksessa näkyy keskustelualueita, joista jokaisella on tietty aihe. Alueil
 
 **Sovelluksen nykyinen tilanne**
 
-Tähän palautukseen ehdin saamaan valmiiksi seuraavat toiminnot:
-- Käyttäjä voi kirjautua sisään ja ulos sekä luoda uuden tunnuksen.
-- Käyttäjä näkee sovelluksen etusivulla listan alueista ja myös ketjujen ja viestien kokonaismäärän. (Aihealueiden viestien kokonaismäärä näkyy aloitussivulla väärin)
-- Käyttäjä voi liikkua aihealueista viestiketjuihin.
-- Käyttäjä voi kirjoittaa uuden viestin olemassa olevaan ketjuun.
-
 Sovelluksesta puuttuvat vielä seuraavat toiminnot:
-- Viimeksi lähetetyn viestin ajankohta
-- Käyttäjä voi muokata luomansa ketjun otsikkoa sekä lähettämänsä viestin sisältöä. Käyttäjä voi myös poistaa ketjun tai viestin.
+- <s>Viimeksi lähetetyn viestin ajankohta</s>
+- <s>Käyttäjä voi muokata luomansa ketjun otsikkoa sekä lähettämänsä viestin sisältöä. Käyttäjä voi myös poistaa ketjun tai viestin.<s>
 - Käyttäjä voi etsiä kaikki viestit, joiden osana on annettu sana.
-- Ylläpitäjä voi lisätä ja poistaa keskustelualueita.
-- Ylläpitäjä voi luoda salaisen alueen ja määrittää, keillä käyttäjillä on pääsy alueelle.
+- <s>Ylläpitäjä voi lisätä ja poistaa keskustelualueita.</s>
+- <s>Ylläpitäjä voi luoda salaisen alueen</s> ja määrittää, keillä käyttäjillä on pääsy alueelle. (Toteutukselle luotu pohja tietokantaan)
 
 HUOMIOITAVAA:
-Tällä hetkellä sovelluksessa on vain pohjarakenne toiminnallinen, ja vaatii tällä hetkellä tietokannan alustuksen toimiakseen. Muut toiminnallisuudet ja nykyisten toiminnallisuuksien optimointi tapahtuu myöhemmin. 
+Sovelluksen ulkoasu on kesken. Tähän palautukseen keskityin saamaan toiminnallisuuksia eteenpäin. Jos sovelluksen tietokannan tyhjentää silloin kun olet kirjautunut sisään verkkosivulla, niin sovellus voi mennä sekaisin. Jos poistelet tietokantaa testaamisen aikana, niin kannattaa kirjautua ensin ulos.
 
 **Käynnistysohjeet** **TÄRKEÄÄ SUORITTAA NÄMÄ OIKEASSA JÄRJESTYKSESSÄ!**
 
@@ -56,12 +50,14 @@ $ flask run
 
 5. Avaa sovellus osoitteessa http://127.0.0.1:5000/
 
-6. Sovellus tarjoaa mahdollisuuden kirjautua sisään. Painamalla linkkiä sovellus tarjoaa mahdollisuuden luoda uusi tunnus. Luo uusi tunnus, jonka jälkeen palaat etusivulle.
+6. Sovellus tarjoaa mahdollisuuden kirjautua sisään. Painamalla linkkiä sovellus tarjoaa mahdollisuuden luoda uusi tunnus. **Voit luoda käyttäjän ylläpitäjän oikeuksilla testaamista varten antamalla käyttäjänimeksi "admin".** Luo uusi tunnus, jonka jälkeen palaat etusivulle.
 
-7. Uuden tunnuksen luomisen jälkeen tietokanta kannattaa alustaa komennolla:
+**Jos haluat tietokantaan valmiiksi keskustelualueita ja ketjuja:**
+
+7. Uuden tunnuksen luomisen jälkeen voit lisätä halutessasi tietokantaan valmiiksi muutaman keskustelualueen ja ketjun:
 $ psql < test.sql
 
-**HUOM!!!!! Tämä komento luo tietokantaan valmiiksi muutaman keskustelualueen ja ketjun jotta viestejä pääsee lähettämään, sillä ketjujen luontia ei ole vielä toteutettu web pohjalla. Tällä hetkellä koodi olettaa, että sovelluksessa on ainakin yksi käyttäjä, joten on tärkeää tehdä tämä juuri tässä järjestyksessä. Jos teet kohdat 3-7 väärässä järjestyksessä, niin voit aina aloittaa uudestaan kohdasta 3.**
+**HUOM!!!!! Tämä komento luo tietokantaan valmiiksi muutaman keskustelualueen ja ketjun. Tällä hetkellä koodi olettaa, että sovelluksessa on ainakin yksi käyttäjä ennen alueiden ja ketjujen luomista, joten on tärkeää tehdä tämä juuri tässä järjestyksessä. Jos teet kohdat 3-7 väärässä järjestyksessä, niin voit aina aloittaa uudestaan kohdasta 3.**
 
-8. Päivittämällä sovelluksen nettisivun saat näkyviisi muutaman aihealueen.
+8. Päivitä tämän jälkeen nettisivu.
 
