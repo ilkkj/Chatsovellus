@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Chatsovellus - {% block title %}{% endblock %}</title>
+</head>
+<body>
+    <header>
+        <nav>
+        <div class="navbar">
+            <div class="left-links">
+                {% if page != 'index' %}
+                <a href="/">Etusivulle</a>
+                {% endif %}
+                {%if page == 'thread' %}
+                <a href="/{{ category.name }}">Edellinen sivu</a>
+                {% endif %}
+            </div>
+            <div class="right-links">
+                {% if session.user_id %}
+                <a href="/logout">Kirjaudu ulos</a>
+                {% else %}
+                <a href="/login">Kirjaudu sisään</a>
+                <a href="/register">Rekisteröidy</a>
+                {% endif %}
+            </div>
+        </div>
+        </nav>
+    </header>
+{% block content %}{% endblock %}
+</body>
+</html>
