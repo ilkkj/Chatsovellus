@@ -6,21 +6,21 @@ DROP TABLE IF EXISTS users;
 
 CREATE TABLE users (
     user_id SERIAL PRIMARY KEY,
-    username VARCHAR(50) NOT NULL UNIQUE,
+    username VARCHAR(32) NOT NULL UNIQUE,
     password VARCHAR NOT NULL
 );
 
 CREATE TABLE rights (
     user_id SERIAL PRIMARY KEY,
     is_admin BOOLEAN NOT NULL DEFAULT FALSE,
-    secret_areas INT[],
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 
 CREATE TABLE categories (
     category_id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL UNIQUE,
-    is_secret BOOLEAN NOT NULL DEFAULT FALSE
+    name VARCHAR(50) NOT NULL UNIQUE,
+    is_secret BOOLEAN NOT NULL DEFAULT FALSE,
+    allowed_users INT[] DEFAULT ARRAY[]::INTEGER[]
 );
 
 CREATE TABLE threads (
@@ -28,6 +28,9 @@ CREATE TABLE threads (
     user_id INT NOT NULL,
     category_id INT NOT NULL,
     name VARCHAR(100) NOT NULL,
+    content TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    edited_at TIMESTAMPTZ,
     FOREIGN KEY (user_id) REFERENCES users(user_id),
     FOREIGN KEY (category_id) REFERENCES categories(category_id) ON DELETE CASCADE
 );
