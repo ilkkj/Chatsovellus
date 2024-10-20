@@ -1,54 +1,86 @@
-<!DOCTYPE html>
-<html lang="fi">
-<head>
-    <meta charset="UTF-8">
-    <title>Chatsovellus</title>
-</head>
-<body>
-    <h1>{{ category.name }}</h1>
-    <h2>{{ thread.name }}</h2>
-    <hr>
-    <a href="/">Etusivulle</a>
-    <a href="/{{ category.name }}">Takaisin</a>
-    <hr>
-    <p>Viestien määrä: {{ count_messages }}</p>
-    <ul>
-        {% for message in messages %}
-        <li>
-            <p>{{ message.username }}: {{ message.content }} <small>{{ message.sent_at }}</small></p>
-            {% if session.user_id == message.user_id %}
-                <form action="/{{ category.name }}/{{ thread.thread_id }}/delete_message" method="POST">
-                    <input type="hidden" name="message_id" value="{{ message.message_id }}">
-                    <input type="submit" value="Poista viesti" />
-                </form>
-                <form action="/{{ category.name }}/{{ thread.thread_id }}/edit_message" method="POST">
-                    <input type="hidden" name="thread_id" value="{{ thread.thread_id }}">
-                    <input type="hidden" name="message_id" value="{{ message.message_id }}">
-                    Muokkaa viestiä: <br>
-                    <textarea name="content" rows="3" cols="40"></textarea>
-                    <br>
-                    <input type="submit" value="Lähetä">
-                </form>
-            {% endif %}
-            </li>
-        {% endfor %}
-    </ul>
+{% extends 'layout.html' %}
+{% block title %}{{ category.name }}{% endblock %}
+{% block content %}
+<div class="content">
+    <h1>{{ category.name }} - {{ thread.name }}</h1>
+    <p>Ketjun vastausten määrä: {{ count_messages }}</p>
+    <div class="thread-box">
+        <h3>{{ thread.name }}</h3>
+        <hr>
+        <p><strong> Ketjun aloittaja: </strong>{{ thread.username }}</p> 
+        <p>{{ thread.content }}</p>
+        <hr>
+        <p>Luotu: {{ thread.created_at }}{% if thread.edited_at %} | Muokattu: {{ thread.edited_at }}{% endif %}</p>
+    </div>
+    {% for message in messages %}
+    <div class="message-box">
+        <p><strong>Käyttäjätunnus: </strong>{{ message.username }}</p>
+        <p id="{{ message.message_id }}">{{ message.content }}</p>
+        <hr>
+        <p>Lähetetty: {{ message.sent_at }}{% if message.edited_at %} | Muokattu: {{ message.edited_at }}{% endif %}</p>
+        {% if session.user_id == message.user_id %}
+        <label>
+            <input type="checkbox" class="toggle-edit-options" data-message-id="{{ message.message_id }}">
+            Muokkaa viestiä
+        </label>
+        <div class="message-edit-options">
+            <form action="/{{ category.name }}/{{ thread.thread_id }}/edit_message" method="POST" class="message-form">
+                <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+                <input type="hidden" name="thread_id" value="{{ thread.thread_id }}">
+                <input type="hidden" name="message_id" value="{{ message.message_id }}">
+                <br>
+                <textarea name="content" rows="6" cols="60" placeholder="Kirjoita viesti" maxlength="20000" required>{{ message.content }}</textarea>
+                <br>
+                <p><input type="submit" value="Lähetä"></p>
+            </form>
+            <br>
+            <form action="/{{ category.name }}/{{ thread.thread_id }}/delete_message" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+                <input type="hidden" name="message_id" value="{{ message.message_id }}">
+                <input type="submit" value="Poista viesti" class="delete-btn">
+            </form>
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
     <hr>
     {% if session.user_id %}
-        <form action="/{{ category.name }}/{{ thread.thread_id }}/send_message" method="POST">
+    <div class="message-box">
+        <form action="/{{ category.name }}/{{ thread.thread_id }}/send_message" method="POST" class="message-form">
+            <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
             <input type="hidden" name="category_id" value="{{ category.category_id }}">
             <input type="hidden" name="category_name" value="{{ category.name }}">
             <input type="hidden" name="thread_id" value="{{ thread.thread_id }}">
-            Viesti: <br>
-            <textarea name="content" rows="3" cols="40"></textarea>
+            <p><strong>Uusi viesti:</strong></p>
+            <textarea name="content" rows="6" cols="60" placeholder="Kirjoita viesti" maxlength="20000" required></textarea>
             <br>
-            <input type="submit" value="Lähetä">
+            <p><input type="submit" value="Lähetä"></p>
         </form>
-        <hr>
-        Olet kirjautunut sisään.
-        <a href="/logout">Kirjaudu ulos</a>
-    {% else %}
-        Sinun tulee olla kirjautunut sisään osallistuaksesi keskusteluun. | <a href="/login">Kirjaudu sisään</a>
+    </div>
     {% endif %}
-</body>
-</html>
+</div>
+    <script>
+        function toggleMessageOptions() {
+            var messageOptions = document.querySelectorAll('.message-edit-options');
+            messageOptions.forEach(function(options) {
+                var checkbox = options.previousElementSibling.querySelector('.toggle-edit-options');
+                options.style.display = checkbox.checked ? 'block' : 'none';
+            });
+        }
+        document.querySelectorAll('.toggle-edit-options').forEach(function(checkbox) {
+            checkbox.addEventListener('change', toggleMessageOptions);
+        });
+        toggleMessageOptions();
+
+        const requiredFields = document.querySelectorAll("input[required], textarea[required]");
+        requiredFields.forEach(field => {
+            field.addEventListener("invalid", function(event) {
+                field.setCustomValidity("Tekstikenttä ei saa olla tyhjä");
+            });
+            field.addEventListener("input", function(event) {
+                field.setCustomValidity("");
+            });
+        });
+    </script>
+    
+{% endblock %}

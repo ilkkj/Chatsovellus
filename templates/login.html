@@ -1,20 +1,28 @@
-<!DOCTYPE html>
-<html lang="fi">
-<head>
-    <meta charset="UTF-8">
-    <title>Chatsovellus</title>
-</head>
-<body>
-    <hr>
-    <a href="/">Etusivulle</a>
-    <hr>
-    <form action="/login" method="post">
-        Tunnus: <input type="text" name="username">
-        <p>
-        Salasana: <input type="password" name="password">
-        <p>
-        <input type="submit" value="Kirjaudu">
-    </form>
-    Jos sinulla ei ole tunnusta, voit luoda uuden tunnuksen <a href="/register">tästä</a>
-</body>
-</html>
+{% extends 'layout.html' %}
+{% block title %}Kirjaudu sisään{% endblock %}
+{% block content %}
+    <div class="content login-page">
+        <div class="login-container">
+            <form action="/login" method="post">
+                <label for="username">Käyttäjätunnus:</label>
+                <input type="text" id="username" name="username" placeholder="Käyttäjätunnus" maxlength="32" required>
+                <p>
+                <label for="password">Salasana:</label>
+                <input type="password" id="password" name="password" placeholder="Salasana" maxlength="64" required>
+                <p>
+                <input type="submit" value="Kirjaudu">
+            </form>
+        </div>
+    </div>
+    <script>
+        const requiredFields = document.querySelectorAll("input[required], textarea[required]");
+        requiredFields.forEach(field => {
+            field.addEventListener("invalid", function(event) {
+                field.setCustomValidity("Tekstikenttä ei saa olla tyhjä");
+            });
+            field.addEventListener("input", function(event) {
+                field.setCustomValidity("");
+            });
+        });
+    </script>
+{% endblock %}

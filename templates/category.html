@@ -1,57 +1,89 @@
-<!DOCTYPE html>
-<html lang="fi">
-<head>
-    <meta charset="UTF-8">
-    <title>Chatsovellus</title>
-</head>
-<body>
-    <h1>{{ category.name }}</h1>
-    <hr>
-    <a href="/">Etusivulle</a>
-    <hr>
+{% extends 'layout.html' %}
+{% block title %}{{ category.name }}{% endblock %}
+{% block content %}
+<div class="content">
+    <h1>Keskustelualue - {{ category.name }}</h1>
     <p>Viestiketjujen määrä: {{ count_threads }}</p>
-    <ul>
         {% for thread in threads %}
-        <li>
-            <a href="/{{ category.name }}/{{ thread.thread_id }}">{{ thread.thread_name }}</a>
+        <div class="thread-box">
+            <a href="/{{ category.name }}/{{ thread.thread_id }}"><h3>{{ thread.thread_name }}</h3></a>
+            <p id="{{ thread.thread_id }}">{{ thread.thread_content }}</p>
             {% if session.user_id == thread.user_id %}
-                <form action="/{{ category.name }}/delete_thread" method="POST">
-                    <input type="hidden" name="thread_id" value="{{ thread.thread_id }}">
-                    <input type="submit" value="Poista keskusteluketju"/>
-                </form>
-                <form action="/{{ category.name }}/edit_thread" method="POST">
-                    <input type="hidden" name="thread_id" value="{{ thread.thread_id }}">
-                    <input type="hidden" name="category_name" value="{{ category.name }}">
-                    Muokkaa otsikkoa: <input type="text" name="thread_name"> 
+                <label>
+                    <input type="checkbox" class="toggle-edit-options" data-thread-id="{{ thread.thread_id }}"> 
+                    Muokkaa viestiketjua
+                </label>
+                <div class="thread-edit-options" data-thread-id="{{ thread.thread_id }}">
+                    <form action="/{{ category.name }}/edit_thread" method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+                        <input type="hidden" name="thread_id" value="{{ thread.thread_id }}">
+                        <input type="hidden" name="category_name" value="{{ category.name }}">
+                        <br>
+                        <input type="text" id="thread_name" name="thread_name" placeholder="Anna otsikko" value="{{ thread.thread_name }}" 
+                        size="30" maxlength="200" required>
+                        <br>
+                        Viesti: 
+                        <br>
+                        <textarea name="content" rows="6" cols="60" placeholder="Kirjoita viesti" maxlength="20000" required>{{ thread.thread_content }}</textarea>
+                        <br>
+                        <input type="submit" value="Muokkaa">
+                    </form>
                     <br>
-                    <input type="submit" value="Lähetä">
-                </form>
+                    <form action="/{{ category.name }}/delete_thread" method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+                        <input type="hidden" name="thread_id" value="{{ thread.thread_id }}">
+                        <input type="submit" value="Poista keskusteluketju" class="delete-btn"/>
+                    </form>
+                </div>
             {% endif %}
-            <p>Viestien määrä: {{ thread.message_count  }}</p>
-            <p>Viimeisin viesti: {{  thread.last_message_time }}</p>
-        </li>
+            <hr>
+            {% if thread.message_count == 0 %}
+            <p>Ei vastauksia</p>
+            {% else %}
+            <p>Vastausten määrä: {{ thread.message_count }} 
+            {% if thread.last_message_time %}
+            | Viimeisin viesti: {{ thread.last_message_time }}</p>
+            {% endif %}
+            {% endif %}
+        </div>
         {% endfor %}
-    </ul>
-    <hr>
     {% if session.user_id %}
-        Luo uusi keskusteluketju:
-        <br>
+    <div class="thread-box">
+        <p><strong>Luo uusi viestiketju:</strong></p>
         <form action="/{{ category.name }}/new_thread" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
             <input type="hidden" name="category_id" value="{{ category.category_id }}">
             <input type="hidden" name="category_name" value="{{ category.name }}">
-            Otsikko: <input type="text" name="thread_name"> 
-            <br>
-            Viesti: 
-            <br>
-            <textarea name="content" rows="3" cols="40"></textarea>
-            <br>
-            <input type="submit" value="Lähetä">
+            <input type="text" id="thread_name" name="thread_name" placeholder="Anna otsikko" size="30" maxlength="100" required>
+            <br> 
+            <p>Viesti:</p>
+            <textarea name="content" rows="6" cols="60" placeholder="Kirjoita viesti" maxlength="20000" required></textarea>
+            <p><input type="submit" value="Lähetä"></p>
         </form>
-    <hr>
-    Olet kirjautunut sisään.
-    <a href="/logout">Kirjaudu ulos</a>
-    {% else %}
-    <a href="/login">Kirjaudu sisään</a>
+    </div>
     {% endif %}
-</body>
-</html>
+</div>
+    <script>
+        function toggleEditOptions() {
+            var editOptions = document.querySelectorAll('.thread-edit-options');
+            editOptions.forEach(function(options) {
+                var checkbox = options.previousElementSibling.querySelector('.toggle-edit-options');
+                options.style.display = checkbox.checked ? 'block' : 'none';
+            });
+        }
+        document.querySelectorAll('.toggle-edit-options').forEach(function(checkbox) {
+            checkbox.addEventListener('change', toggleEditOptions);
+        });
+        toggleEditOptions();
+
+        const requiredFields = document.querySelectorAll("input[required], textarea[required]");
+        requiredFields.forEach(field => {
+            field.addEventListener("invalid", function(event) {
+                field.setCustomValidity("Tekstikenttä ei saa olla tyhjä");
+            });
+            field.addEventListener("input", function(event) {
+                field.setCustomValidity("");
+            });
+        });
+    </script>
+{% endblock %}

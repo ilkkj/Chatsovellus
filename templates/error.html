@@ -1,13 +1,9 @@
-<!DOCTYPE html>
-<html lang="fi">
-<head>
-    <meta charset="UTF-8">
-    <title>Chatsovellus</title>
-</head>
-<body>   
-    <hr>
-        <a href="/">Etusivulle</a>
-    <hr>
-    Virhe: {{ message }}
-</body>
-</html>
+{% extends 'layout.html' %}
+{% block title %}Virheviesti{% endblock %}
+{% block content %}
+<div class="content">
+    <p><h1>Virhe: </h1></p>
+    <p><h2>{{ message }}</h2></p>
+    <p><button onclick="history.back();">Yritä uudelleen</button></p>
+</div>
+{% endblock %}

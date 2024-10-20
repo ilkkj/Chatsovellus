@@ -1,48 +1,132 @@
-<!DOCTYPE html>
-<html lang="fi">
-<head>
-    <meta charset="UTF-8">
-    <title>Chatsovellus</title>
-</head>
-<body>
-    <h1>Keskustelualueet</h1>
-    <hr>
-        Keskustelualueiden määrä: {{ count_categories }}
+{% extends 'layout.html' %}
+{% block title %}Etusivu{% endblock %}
+{% block content %}
+<div class="content">
+    <h1>Etusivu</h1>
     <hr>    
-        <ul>
-            {% for category in categories %}
-            <li>
-                <a href="/{{ category.category_name }}">{{ category.category_name }}</a>
-                {% if admin %}
-                <form action="/delete_category" method="POST">
-                    <input type="hidden" name="category_id" value="{{ category.category_id }}">
-                    <input type="submit" value="Poista keskustelualue"/>
-                </form>
-                {% endif %}
-                <p>Viestiketjujen määrä: {{ category.thread_count }}</p>
-                <p>Viestien määrä: {{ category.message_count }}</p>
-                <p>Viimeisin viesti: {{  category.last_message_time }}</p>
-            </li>
-            {% endfor %}
-            <br>
-            {% if admin %}
-            Luo uusi keskusteluketju:
-            <br>
-            <form action="/new_category" method="POST">
-                <input type="text" name="category_name"> 
-                <input type="radio" name="is_secret" value="0" checked> Avoin
-                <input type="radio" name="is_secret" value="1"> Salainen
-                <br>
-                <input type="submit" value="Luo uusi keskustelualue">
-            </form>
-            {% endif %}
-        </ul>
+    <div class="search-box">
+        <h3>Haku</h3>
+        <form action="{{ url_for('search') }}" method="get">
+            <input type="text" id="query" name="query" placeholder="Anna hakusana" maxlength="200">
+            <h4>Hakuvalinnat</h4>
+            <div>
+                <input type="checkbox" id="include_categories" name="search_options" value="categories" checked>
+                <label for="include_categories">Sisällytä keskustelualueet</label>
+            </div>
+            <div>
+                <input type="checkbox" id="include_threads" name="search_options" value="threads" checked>
+                <label for="include_threads">Sisällytä ketjut</label>
+            </div>
+            <div>
+                <input type="checkbox" id="include_messages" name="search_options" value="messages" checked>
+                <label for="include_messages">Sisällytä viestit</label>
+            </div>
+            <p><button type="submit">Hae</button></p>
+        </form>
+    </div>
     <hr>
-    {% if session.user_id %}
-    Olet kirjautunut sisään.
-    <a href="/logout">Kirjaudu ulos</a>
-    {% else %}
-    <a href="/login">Kirjaudu sisään</a>
+    <h1>Keskustelualueet</h1>
+    <p>Keskustelualueiden määrä: {{ count_categories }}</p>
+    {% for category in categories %}
+    <div class="category-box">
+        <a href="/{{ category.category_name }}"><h2>{{ category.category_name }}</h2></a>
+        {% if admin %}
+        <label>
+            <input type="checkbox" class="toggle-edit-options" data-category-id="{{ category.category_id }}"> 
+            Muuta keskustelualueen tietoja
+        </label>
+        <div class="category-edit-options" style="display: none;">
+            <form action="/edit_category" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+                <input type="hidden" name="category_id" value="{{ category.category_id }}">
+                <input type="text" name="category_name" placeholder="Anna otsikko" value="{{ category.category_name }}" maxlength="50" required> 
+                <label>
+                    <input type="radio" id="is_secret0" name="is_secret" value="0" class="is_secret_open" 
+                    {% if category.is_secret == 0 %}checked{% endif %}>Avoin
+                </label>
+                <label>
+                    <input type="radio" id="is_secret1" name="is_secret" value="1" class="is_secret_secret"
+                    {% if category.is_secret == 1 %}checked{% endif %}>Salainen
+                </label>
+                <div class="secret-users">
+                    Valitse käyttäjät, joilla on pääsy alueelle: <br>
+                    {% for user in users %}
+                        <input type="checkbox" name="user_ids" value="{{ user.user_id }}"
+                        {% if category.allowed_users %}
+                        {% if user.user_id in category.allowed_users %}checked{% endif %}
+                        {% endif %}> 
+                        {{ user.username }} <br>
+                    {% endfor %}
+                </div>
+                <p><input type="submit" value="Päivitä keskustelualue"></p>
+            </form>
+
+            <form action="/delete_category" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+                <input type="hidden" name="category_id" value="{{ category.category_id }}">
+                <input type="submit" value="Poista keskustelualue" class="delete-btn"/>
+            </form>
+        </div>
+        {% endif %}
+        <p>Viestiketjujen määrä: {{ category.thread_count }}</p>
+        <p>Viestien määrä: {{ category.message_count }}</p>
+        {% if category.last_message_time %}
+        <p>Viimeisin viesti: {{  category.last_message_time }}</p>
+        {% endif %}
+    </div>
+    {% endfor %}
+    {% if admin %}
+    <div class="category-box">
+        <p><strong>Luo uusi keskustelualue:</strong></p>
+        <form action="/new_category" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+            <input type="text" name="category_name" placeholder="Anna otsikko" maxlength="60" required>
+            <label for="is_secret0">Avoin</label>
+            <input type="radio" id="is_secret0" name="is_secret" value="0" checked>
+            <label for="is_secret1">Salainen</label>
+            <input type="radio" id="is_secret1" name="is_secret" value="1">
+            <br>
+            <p><input type="submit" value="Luo uusi keskustelualue"></p>
+        </form>
+    </div>
     {% endif %}
-</body>
-</html>
+</div>
+<script>
+    function toggleEditOptions() {
+        var editOptions = document.querySelectorAll('.category-edit-options');
+        editOptions.forEach(function(options) {
+            var checkbox = options.previousElementSibling.querySelector('.toggle-edit-options');
+            options.style.display = checkbox.checked ? 'block' : 'none';
+        });
+    }
+    function toggleSecretSections() {
+        var secretSections = document.querySelectorAll('.secret-users');
+        secretSections.forEach(function(section) {
+            var isSecretRadio = section.closest('form').querySelector('.is_secret_secret');
+            if (isSecretRadio.checked) {
+                section.style.display = 'block';
+            } else {
+                section.style.display = 'none';
+            }
+        });
+    }
+    document.querySelectorAll('.toggle-edit-options').forEach(function(checkbox) {
+        checkbox.addEventListener('change', toggleEditOptions);
+    });
+    document.querySelectorAll('.is_secret_open, .is_secret_secret').forEach(function(radio) {
+        radio.addEventListener('change', toggleSecretSections);
+    });
+    toggleEditOptions();
+    toggleSecretSections();
+
+    const requiredFields = document.querySelectorAll("input[required], textarea[required]");
+    requiredFields.forEach(field => {
+        field.addEventListener("invalid", function(event) {
+            field.setCustomValidity("Tekstikenttä ei saa olla tyhjä");
+        });
+        field.addEventListener("input", function(event) {
+            field.setCustomValidity("");
+        });
+    });
+</script>
+{% endblock %}
